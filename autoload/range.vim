@@ -1,9 +1,7 @@
-
 function! Range#Command(count, firstLine, lastLine, cmdInput, bang) "{{{2
     """
     "The top level function that handles arguments and user input
     """
-
     let cmdInputExpr  = s:HandleCmdInput(a:cmdInput, a:bang)
 
     if cmdInputExpr != '' "an expression was passed in
