@@ -1,86 +1,115 @@
+"SCRIPT SETTINGS {{{
+let save_cpo = &cpo   "allow line continuation
+set cpo&vim
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""}}}
+
+"AUTO COMMANDS {{{
 augroup range_mode
     autocmd!
     autocmd CursorMoved * let g:range_mode = mode()
-augroup END
+augroup END "}}}
 
-"RANGE {{{
+"FUNCTIONS {{{
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-let s:Range = { 'type' : "", 'range' : "", 'firstLine' : 0, 'lastLine' : 0 }
+
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-function! s:Range.setType(count, firstLine, lastLine) dict "{{{2
+function! range#range#New() "{{{2
+    """
+    """
+
+    let retValue = {
+                \  'Type'         : '',
+                \  'Range'        : '',
+                \  'FirstLine'    : 0,
+                \  'LastLine'     : 0,
+                \  'SetType'      : function('range#range#SetType'),
+                \  'GetType'      : function('range#range#GetType'),
+                \  'OverWrite'    : function('range#range#OverWrite'),
+                \  'GetLines'     : function('range#range#GetLines'),
+                \  'GetSelection' : function('range#range#GetSelection'),
+                \  'Capture'      : function('range#range#Capture'),
+                \  }
+
+    return retValue
+
+
+endfunction "}}} 2
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+function! range#range#SetType(count, firstLine, lastLine) dict "{{{2
     """
     """
 
     if a:count == 0 "no range given
-        let self.type = "none"
+        let self.Type = "none"
     else "range was given
         if g:range_mode =~ '\v\Cv|'
-            let self.type = "selection"
+            let self.Type = "selection"
         else "line wise mark, %, or visual line range given
-            let self.type = "lines"
-            let self.firstLine = a:firstLine
-            let self.lastLine = a:lastLine
+            let self.Type = "lines"
+            let self.FirstLine = a:firstLine
+            let self.LastLine = a:lastLine
         endif
     endif
-    call debug#PrintMsg(self.firstLine.'= first line')
-    call debug#PrintMsg(self.lastLine.'= last line')
+    call util#debug#PrintMsg(self.FirstLine.'= first line')
+    call util#debug#PrintMsg(self.LastLine.'= last line')
+endfunction range#range#Range.setType "}}}2
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+function! range#range#GetType() dict "{{{2
+    """
+    """
+
+    return self.Type
 endfunction "}}}2
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-function! s:Range.getType() dict "{{{2
+function! range#range#Capture() dict "{{{2
     """
     """
 
-    return self.type
-endfunction "}}}2
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-function! s:Range.capture() dict "{{{2
-    """
-    """
-
-    if self.type == "selection"
-        let self.range = self.getSelection()
-    elseif self.type == "lines"
-        let self.range = self.getLines()
-    elseif self.type == "none"
-        let self.range =""
+    if self.Type == "selection"
+        let self.Range = self.GetSelection()
+    elseif self.Type == "lines"
+        let self.Range = self.GetLines()
+    elseif self.Type == "none"
+        let self.Range =""
     else
-        call s:Throw("Invalid value for s:Range.type")
+        call range#range#Throw("Invalid value for s:Range.type")
     endif
-    call debug#PrintMsg(self.type.'= type of selection')
+    call util#debug#PrintMsg(self.Type.'= type of selection')
 endfunction "}}}2
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-function! s:Range.overWrite(rangeToPut) dict "{{{2
+function! range#range#OverWrite(rangeToPut) dict "{{{2
     """
     """
 
-    call debug#PrintHeader('Range.overWrite')
+    call util#debug#PrintHeader('Range.overWrite')
     let a_save = @a
 
-    call debug#PrintVarMsg("pasting as", self.type)
-    call debug#PrintVarMsg("pasting", a:rangeToPut)
-    if self.type == "selection"
+    call util#debug#PrintVarMsg("pasting as", self.Type)
+    call util#debug#PrintVarMsg("pasting", a:rangeToPut)
+    if self.Type == "selection"
         call setreg('a', a:rangeToPut, g:range_mode)
         normal! gv"ap
-    elseif self.type == "lines"
-        call setline(self.firstLine, split(a:rangeToPut, "\n"))
+    elseif self.Type == "lines"
+        call setline(self.FirstLine, split(a:rangeToPut, "\n"))
     else
-        call s:Throw("Invalid value for s:Range.type call s:Range.setType first")
+        call range#range#Throw("Invalid value for s:Range.type call s:Range.setType first")
     endif
 
     let @a = a_save
 endfunction "}}}2
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-function! s:Range.getLines() dict "{{{2
-    return join(getline(self.firstLine, self.lastLine), "\n")
+function! range#range#GetLines() dict "{{{2
+    return join(getline(self.FirstLine, self.LastLine), "\n")
 endfunction "}}}2
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-function! s:Range.getSelection() dict "{{{2
+function! range#range#GetSelection() dict "{{{2
     """
     """
 
@@ -92,25 +121,10 @@ function! s:Range.getSelection() dict "{{{2
         call setreg('a', a_save)
     endtry
 endfunction "}}}2
+
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""}}}
 
-function! range#Command(count, firstLine, lastLine, cmdInput, bang) "{{{2
-    """
-    "The top level function that handles arguments and user input
-    """
-    let cmdInputExpr  = s:HandleCmdInput(a:cmdInput, a:bang)
-
-    if cmdInputExpr != '' "an expression was passed in
-    else "no command was passed in
-
-        call s:Range.setType(a:count, a:firstLine, a:lastLine)
-        call s:Range.capture()
-
-        if s:Range.range == '' "no lines or Selection was returned
-            echom s:Range.range
-        else
-            call s:Range.overWrite()
-        endif
-    endif
-    let s:bang = '' "TODO refactor
-endfunction "}}}2
+"SCRIPT SETTINGS {{{
+let &cpo = save_cpo
+" vim:foldmethod=marker
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""}}}
