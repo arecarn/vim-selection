@@ -1,23 +1,7 @@
-function! Range#Command(count, firstLine, lastLine, cmdInput, bang) "{{{2
-    """
-    "The top level function that handles arguments and user input
-    """
-    let cmdInputExpr  = s:HandleCmdInput(a:cmdInput, a:bang)
-
-    if cmdInputExpr != '' "an expression was passed in
-    else "no command was passed in
-
-        call s:Range.setType(a:count, a:firstLine, a:lastLine)
-        call s:Range.capture()
-
-        if s:Range.range == '' "no lines or Selection was returned
-            echom s:Range.range
-        else
-            call s:Range.overWrite()
-        endif
-    endif
-    let s:bang = '' "TODO refactor
-endfunction "}}}2
+augroup range_mode
+    autocmd!
+    autocmd CursorMoved * let g:range_mode = mode()
+augroup END
 
 "RANGE {{{
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -109,3 +93,24 @@ function! s:Range.getSelection() dict "{{{2
     endtry
 endfunction "}}}2
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""}}}
+
+function! range#Command(count, firstLine, lastLine, cmdInput, bang) "{{{2
+    """
+    "The top level function that handles arguments and user input
+    """
+    let cmdInputExpr  = s:HandleCmdInput(a:cmdInput, a:bang)
+
+    if cmdInputExpr != '' "an expression was passed in
+    else "no command was passed in
+
+        call s:Range.setType(a:count, a:firstLine, a:lastLine)
+        call s:Range.capture()
+
+        if s:Range.range == '' "no lines or Selection was returned
+            echom s:Range.range
+        else
+            call s:Range.overWrite()
+        endif
+    endif
+    let s:bang = '' "TODO refactor
+endfunction "}}}2
