@@ -1,5 +1,5 @@
 "SCRIPT SETTINGS {{{
-let save_cpo = &cpo   "allow line continuation
+let s:saveCpo = &cpo   "allow line continuation
 set cpo&vim
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""}}}
 
@@ -24,37 +24,37 @@ function! selection#New(count, firstLine, lastLine) "{{{2
     "lastLine: should be the command escape sequence <line2>
 
     let selection = {
-                \  'Selection'    : '',
-                \  'Type'         : '',
-                \  'FirstLine'    : 0,
-                \  'LastLine'     : 0,
+                \  'content'      : '',
+                \  'type'         : '',
+                \  'firstLine'    : 0,
+                \  'lastLine'     : 0,
                 \  'OverWrite'    : function('selection#OverWrite'),
                 \  'GetLines'     : function('selection#GetLines'),
                 \  'GetSelection' : function('selection#GetSelection'),
                 \  }
 
     if a:count == 0 "no selection given
-        let selection.Type = "none"
+        let selection.type = "none"
     else "selection was given
         if g:selection_mode =~ '\v\Cv|'
-            let selection.Type = "selection"
+            let selection.type = "selection"
         else "line wise mark, %, or visual line selection given
-            let selection.Type = "lines"
-            let selection.FirstLine = a:firstLine
-            let selection.LastLine = a:lastLine
+            let selection.type = "lines"
+            let selection.firstLine = a:firstLine
+            let selection.lastLine = a:lastLine
         endif
     endif
 
 
     "Capture the selection
-    if selection.Type == 'selection'
-        let selection.Selection = selection.GetSelection()
-    elseif selection.Type == 'lines'
-        let selection.Selection = selection.GetLines()
-    elseif selection.Type == 'none'
-        let selection.Selection =''
+    if selection.type == 'selection'
+        let selection.content = selection.GetSelection()
+    elseif selection.type == 'lines'
+        let selection.content = selection.GetLines()
+    elseif selection.type == 'none'
+        let selection.content =''
     else
-        call throw "selection.vim invalid value for Selection.Type"
+        throw "selection.vim invalid value for selection.type"
     endif
 
     return selection
@@ -67,13 +67,13 @@ function! selection#OverWrite(selectionToPut) dict "{{{2
 
     let a_save = @a
 
-    if self.Type == "selection"
+    if self.type == "selection"
         call setreg('a', a:selectionToPut, g:selection_mode)
         normal! gv"ap
-    elseif self.Type == "lines"
-        call setline(self.FirstLine, split(a:selectionToPut, "\n"))
+    elseif self.type == "lines"
+        call setline(self.firstLine, split(a:selectionToPut, "\n"))
     else
-        call throw "selection.vim: invalid value for Selection.Type"
+        call throw "selection.vim: invalid value for selection.type"
     endif
 
     let @a = a_save
@@ -81,7 +81,7 @@ endfunction "}}}2
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 function! selection#GetLines() dict "{{{2
-    return join(getline(self.FirstLine, self.LastLine), "\n")
+    return join(getline(self.firstLine, self.lastLine), "\n")
 endfunction "}}}2
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -101,6 +101,6 @@ endfunction "}}}2
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""}}}
 
 "SCRIPT SETTINGS {{{
-let &cpo = save_cpo
+let &cpo = s:saveCpo
 " vim:foldmethod=marker
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""}}}
