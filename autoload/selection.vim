@@ -1,5 +1,5 @@
 "SCRIPT SETTINGS {{{
-let s:saveCpo = &cpo   "allow line continuation
+let s:save_cpo = &cpo   "allow line continuation
 set cpo&vim
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""}}}
 
@@ -14,23 +14,23 @@ augroup END "}}}
 
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-function! selection#New(count, firstLine, lastLine) "{{{2
+function! selection#new(count, first_line, last_line) "{{{2
     "Constructor for the selection object. That uses escape sequence parameters
     "passed in from commands.
     "
     "Parameters:
     "count: should be the command escape sequence <count>
-    "firstLine: should be the command escape sequence <line1>
-    "lastLine: should be the command escape sequence <line2>
+    "first_line: should be the command escape sequence <line1>
+    "last_line: should be the command escape sequence <line2>
 
     let selection = {
                 \  'content'      : '',
                 \  'type'         : '',
-                \  'firstLine'    : 0,
-                \  'lastLine'     : 0,
-                \  'OverWrite'    : function('selection#OverWrite'),
-                \  'GetLines'     : function('selection#GetLines'),
-                \  'GetSelection' : function('selection#GetSelection'),
+                \  'first_line'    : 0,
+                \  'last_line'     : 0,
+                \  'over_write'    : function('selection#over_write'),
+                \  'get_lines'     : function('selection#get_lines'),
+                \  'get_selection' : function('selection#get_selection'),
                 \  }
 
     if a:count == 0 "no selection given
@@ -40,17 +40,17 @@ function! selection#New(count, firstLine, lastLine) "{{{2
             let selection.type = "selection"
         else "line wise mark, %, or visual line selection given
             let selection.type = "lines"
-            let selection.firstLine = a:firstLine
-            let selection.lastLine = a:lastLine
+            let selection.first_line = a:first_line
+            let selection.last_line = a:last_line
         endif
     endif
 
 
     "Capture the selection
     if selection.type == 'selection'
-        let selection.content = selection.GetSelection()
+        let selection.content = selection.get_selection()
     elseif selection.type == 'lines'
-        let selection.content = selection.GetLines()
+        let selection.content = selection.get_lines()
     elseif selection.type == 'none'
         let selection.content =''
     else
@@ -61,17 +61,17 @@ function! selection#New(count, firstLine, lastLine) "{{{2
 endfunction "}}} 2
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-function! selection#OverWrite(selectionToPut) dict "{{{2
+function! selection#over_write(selection_to_put) dict "{{{2
     """
     """
 
     let a_save = @a
 
     if self.type == "selection"
-        call setreg('a', a:selectionToPut, g:selection_mode)
+        call setreg('a', a:selection_to_put, g:selection_mode)
         normal! gv"ap
     elseif self.type == "lines"
-        call setline(self.firstLine, split(a:selectionToPut, "\n"))
+        call setline(self.first_line, split(a:selection_to_put, "\n"))
     else
         call throw "selection.vim: invalid value for selection.type"
     endif
@@ -80,12 +80,12 @@ function! selection#OverWrite(selectionToPut) dict "{{{2
 endfunction "}}}2
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-function! selection#GetLines() dict "{{{2
-    return join(getline(self.firstLine, self.lastLine), "\n")
+function! selection#get_lines() dict "{{{2
+    return join(getline(self.first_line, self.last_line), "\n")
 endfunction "}}}2
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-function! selection#GetSelection() dict "{{{2
+function! selection#get_selection() dict "{{{2
     """
     """
 
@@ -101,6 +101,6 @@ endfunction "}}}2
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""}}}
 
 "SCRIPT SETTINGS {{{
-let &cpo = s:saveCpo
+let &cpo = s:save_cpo
 " vim:foldmethod=marker
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""}}}
