@@ -3,12 +3,6 @@ let s:save_cpo = &cpo   "allow line continuation
 set cpo&vim
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""}}}
 
-"AUTO COMMANDS {{{
-augroup selection_mode
-    autocmd!
-    autocmd CursorMoved * let g:selection_mode = mode()
-augroup END "}}}
-
 "FUNCTIONS {{{
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
