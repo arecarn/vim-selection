@@ -1,21 +1,26 @@
-"SCRIPT SETTINGS {{{
-let s:save_cpo = &cpo   "allow line continuation
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Original Author: Ryan Carney
+" License: WTFPL
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+
+" BOILER PLATE {{{
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+let s:save_cpo = &cpo
 set cpo&vim
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""}}}
 
-"FUNCTIONS {{{
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-
+" CLASS {{{
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-function! selection#new(count, first_line, last_line) "{{{2
-    "Constructor for the selection object. That uses escape sequence parameters
-    "passed in from commands.
+function! selection#new(count, first_line, last_line) " {{{2
+    " Constructor for the selection object. That uses escape sequence
+    " parameters passed in from commands.
     "
-    "Parameters:
-    "count: should be the command escape sequence <count>
-    "first_line: should be the command escape sequence <line1>
-    "last_line: should be the command escape sequence <line2>
+    " Parameters:
+    " count: should be the command escape sequence <count>
+    " first_line: should be the command escape sequence <line1>
+    " last_line: should be the command escape sequence <line2>
 
     let selection = {
                 \  'content'      : '',
@@ -27,20 +32,19 @@ function! selection#new(count, first_line, last_line) "{{{2
                 \  'get_selection' : function('selection#get_selection'),
                 \  }
 
-    if a:count == 0 "no selection given
+    if a:count == 0 " no selection given
         let selection.type = "none"
-    else "selection was given
+    else " selection was given
         if g:selection_mode =~ '\v\Cv|'
             let selection.type = "selection"
-        else "line wise mark, %, or visual line selection given
+        else " line wise mark, %, or visual line selection given
             let selection.type = "lines"
             let selection.first_line = a:first_line
             let selection.last_line = a:last_line
         endif
     endif
 
-
-    "Capture the selection
+    " Capture the selection
     if selection.type == 'selection'
         let selection.content = selection.get_selection()
     elseif selection.type == 'lines'
@@ -52,13 +56,11 @@ function! selection#new(count, first_line, last_line) "{{{2
     endif
 
     return selection
-endfunction "}}} 2
+endfunction " }}}2
 
+" METHODS {{{2
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-function! selection#over_write(selection_to_put) dict "{{{2
-    """
-    """
-
+function! selection#over_write(selection_to_put) dict " {{{3
     let a_save = @a
 
     if self.type == "selection"
@@ -71,18 +73,15 @@ function! selection#over_write(selection_to_put) dict "{{{2
     endif
 
     let @a = a_save
-endfunction "}}}2
+endfunction " }}}3
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-function! selection#get_lines() dict "{{{2
+
+function! selection#get_lines() dict " {{{3
     return join(getline(self.first_line, self.last_line), "\n")
-endfunction "}}}2
+endfunction " }}}3
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-function! selection#get_selection() dict "{{{2
-    """
-    """
 
+function! selection#get_selection() dict " {{{3
     try
         let a_save = getreg('a')
         normal! gv"ay
@@ -90,11 +89,16 @@ function! selection#get_selection() dict "{{{2
     finally
         call setreg('a', a_save)
     endtry
-endfunction "}}}2
-
+endfunction " }}}3
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""}}}2
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""}}}
 
-"SCRIPT SETTINGS {{{
+
+" BOILER PLATE {{{
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 let &cpo = s:save_cpo
+unlet s:save_cpo
 " vim:foldmethod=marker
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""}}}
+
+
