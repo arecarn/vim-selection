@@ -13,10 +13,11 @@ set cpo&vim
 
 " CLASS {{{
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-function! selection#new(count, first_line, last_line) " {{{2
-    " Constructor for the selection object. That uses escape sequence
-    " parameters passed in from commands.
-    "
+function! selection#new(count, first_line, last_line) abort "{{{2
+    " Constructor for the selection object. Provides the means to get
+    " selection, and overwrite them. Also allows commands to act on visual
+    " block selections.
+
     " Parameters:
     " count: should be the command escape sequence <count>
     " first_line: should be the command escape sequence <line1>
@@ -56,11 +57,13 @@ function! selection#new(count, first_line, last_line) " {{{2
     endif
 
     return selection
-endfunction " }}}2
+endfunction "}}}2
 
 " METHODS {{{2
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-function! selection#over_write(selection_to_put) dict " {{{3
+function! selection#over_write(selection_to_put) abort dict "{{{3
+    " Overwrite a selection with a string
+
     let a_save = @a
 
     if self.type == "selection"
@@ -73,15 +76,19 @@ function! selection#over_write(selection_to_put) dict " {{{3
     endif
 
     let @a = a_save
-endfunction " }}}3
+endfunction "}}}3
 
 
-function! selection#get_lines() dict " {{{3
+function! selection#get_lines() abort dict "{{{3
+    " Returns the whole lines between a range or visual line selection
+
     return join(getline(self.first_line, self.last_line), "\n")
-endfunction " }}}3
+endfunction "}}}3
 
 
-function! selection#get_selection() dict " {{{3
+function! selection#get_selection() abort dict "{{{3
+    " Returns the content of the last selection while preserving registers
+
     try
         let a_save = getreg('a')
         normal! gv"ay
@@ -89,7 +96,7 @@ function! selection#get_selection() dict " {{{3
     finally
         call setreg('a', a_save)
     endtry
-endfunction " }}}3
+endfunction "}}}3
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""}}}2
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""}}}
 
