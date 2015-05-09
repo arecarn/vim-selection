@@ -42,6 +42,13 @@ function! selection#new(count, first_line, last_line) abort "{{{2
             let selection.type = "lines"
             let selection.first_line = a:first_line
             let selection.last_line = a:last_line
+
+            let last_line_in_file = line('$')
+            if a:last_line > last_line_in_file
+                let selection.last_line = last_line_in_file
+            else
+                let selection.last_line = a:last_line
+            endif
         endif
     endif
 
@@ -70,7 +77,10 @@ function! selection#over_write(selection_to_put) abort dict "{{{3
         call setreg('a', a:selection_to_put, g:selection_mode)
         normal! gv"ap
     elseif self.type == "lines"
-        call setline(self.first_line, split(a:selection_to_put, "\n"))
+        call setreg('a', a:selection_to_put, 'l')
+        execute self.last_line
+        execute 'normal! "ap'
+        execute self.first_line.','.self.last_line.' delete _'
     else
         call throw "selection.vim: invalid value for selection.type"
     endif
