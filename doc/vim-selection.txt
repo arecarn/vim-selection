@@ -1,0 +1,14 @@
+vim-selection.txt
+
+================================================================================
+CONTENTS                                                  *vim-selection-contents*
+
+1. selection.............................................|vim-selection-selection|
+
+================================================================================
+SELECTION                                                *vim-selection-selection*
+
+*   Allows detection of a command being called from insert mode or visual mode
+*   Can be used to capture all types of visual selections and ranges while preserving registers
+*   Can be used to overwrite all types visual selections
+ vim:tw=78:ts=8:ft=help:norl:
